@@ -18,5 +18,8 @@ class Engine:
         self.engine = chess.engine.SimpleEngine.popen_uci(os.path.join(file_path, engine_path))
         self.engine.configure({'Skill Level': ENGINE_SKILL_LEVEL.get_value(level)})
 
+    def reconfigure(self, level):
+        self.engine.configure({'Skill Level': ENGINE_SKILL_LEVEL.get_value(level)})
+
     def play(self, board, time=0.1):
         return self.engine.play(board, chess.engine.Limit(time))

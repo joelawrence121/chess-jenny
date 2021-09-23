@@ -1,55 +1,79 @@
+import math
+
 import chess
 import chess.svg
 import chess.engine
+import mysql.connector
 
-from domain.domain import ENGINE_SKILL_LEVEL
+from domain.domain import ENGINE_SKILL_LEVEL, GAIN_THRESHOLDS
 from stockfish.stockfish import Engine
 
 
-def print_big_move(prev_score, current_score):
-    if prev_score is None or current_score is None:
-        return
-    if abs(prev_score) - abs(current_score) > 400:
-        print("BIG MOVE")
+class generator:
 
+    def __init__(self, level_1, level_2):
+        self.w_engine_level = level_1
+        self.w_engine = Engine(level_1)
+        self.b_engine_level = level_2
+        self.b_engine = Engine(level_2)
+        self.board = chess.Board()
 
-def generate():
-    engine1 = Engine(ENGINE_SKILL_LEVEL.TWO)
-    engine2 = Engine(ENGINE_SKILL_LEVEL.SIX)
-
-    board = chess.Board()
-    w_prev_score = 0
-    b_prev_score = 0
-
-    while not board.is_game_over():
-        # whites move
-        result = engine1.play(board)
-        board.push(result.move)
-        info = engine1.engine.analyse(board, chess.engine.Limit(depth=10))
-        w_current_score = info["score"].pov(True).score()
+    def play_move(self, engine, pov):
+        result = engine.play(self.board)
+        self.board.push(result.move)
+        info = engine.engine.analyse(self.board, chess.engine.Limit(time=0.500))
+        cp = chess.engine.PovScore(info['score'], pov).pov(pov).relative.score()
+        raw_score = 2 / (1 + math.exp(-0.004 * cp)) - 1
 
         print(result)
-        print(board.board_fen())
-        print("Score:", w_current_score)
-        print_big_move(w_prev_score, w_current_score)
-        w_prev_score = w_current_score
+        print(self.board.board_fen())
+        print(raw_score)
 
-        # blacks move
-        result = engine2.play(board)
-        board.push(result.move)
-        info = engine2.engine.analyse(board, chess.engine.Limit(depth=10))
-        b_current_score = info["score"].pov(False).score()
+        return raw_score
 
-        print(result)
-        print(board.board_fen())
-        print("Score:", b_current_score)
-        print_big_move(b_prev_score, b_current_score)
-        b_prev_score = b_current_score
+    def generate_gain(self):
+        w_prev_score = b_prev_score = 0
 
-    print("Checkmate: " + str(board.is_checkmate()))
-    engine1.engine.quit()
-    engine2.engine.quit()
+        while not self.board.is_game_over():
+            # whites move
+            w_current_score = self.play_move(self.w_engine, chess.WHITE)
+            GAIN_THRESHOLDS.is_advantage_gain(w_prev_score, w_current_score)
+            w_prev_score = w_current_score
+
+            # blacks move
+            b_current_score = self.play_move(self.b_engine, chess.BLACK)
+            GAIN_THRESHOLDS.is_advantage_gain(b_prev_score, b_current_score)
+            b_prev_score = b_current_score
+
+        print("Checkmate: " + str(self.board.is_checkmate()))
+        self.w_engine.engine.quit()
+        self.b_engine.engine.quit()
+
+    def generate_swing(self):
+        w_prev_score = b_prev_score = 0
+
+        while not self.board.is_game_over():
+            # whites move
+            w_current_score = self.play_move(self.w_engine, chess.WHITE)
+            GAIN_THRESHOLDS.is_advantage_swing(w_prev_score, w_current_score)
+            w_prev_score = w_current_score
+
+            # blacks move
+            b_current_score = self.play_move(self.b_engine, chess.BLACK)
+            GAIN_THRESHOLDS.is_advantage_swing(b_prev_score, b_current_score)
+            b_prev_score = b_current_score
+
+            # if gap is too large, swap skill sets
+            if b_current_score - w_current_score > GAIN_THRESHOLDS.CP_GAP:
+                print("Swapped levels")
+                self.w_engine.reconfigure(self.b_engine_level)
+                self.b_engine.reconfigure(self.w_engine_level)
+
+        print("Checkmate: " + str(self.board.is_checkmate()))
+        self.w_engine.engine.quit()
+        self.b_engine.engine.quit()
 
 
 if __name__ == '__main__':
-    generate()
+    generator = generator(ENGINE_SKILL_LEVEL.TWO, ENGINE_SKILL_LEVEL.SIX)
+    generator.generate_swing()

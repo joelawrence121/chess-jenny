@@ -10,7 +10,6 @@ from stockfish.stockfish import Engine
 
 
 class generator:
-
     TIME_LIMIT = 0.500
 
     def __init__(self, w_level, b_level):
@@ -42,7 +41,15 @@ class generator:
 
         return raw_score, result.move.uci()
 
-    def generate_gain(self):
+    def reconfigure_engine_levels(self, b_current_score, w_current_score):
+        if b_current_score is None or w_current_score is None:
+            return
+        if b_current_score - w_current_score > GainThresholds.CP_GAP.value:
+            print("Swapped levels")
+            self.w_engine.reconfigure(self.b_engine_level)
+            self.b_engine.reconfigure(self.w_engine_level)
+
+    def play_game(self, allow_skill_switch):
         w_prev_score = b_prev_score = 0
 
         while not self.board.is_game_over():
@@ -53,39 +60,6 @@ class generator:
             if GainThresholds.is_advantage_gain(w_prev_score, w_current_score):
                 self.db.insert(previous_fen, self.board.fen(), w_move_result[1], w_current_score - w_prev_score, "gain",
                                "white")
-            w_prev_score = w_current_score
-
-            # blacks move
-            previous_fen = self.board.fen()
-            b_move_result = self.play_move(self.b_engine, chess.BLACK)
-            b_current_score = b_move_result[0]
-            if GainThresholds.is_advantage_gain(b_prev_score, b_current_score):
-                self.db.insert(previous_fen, self.board.fen(), b_move_result[1], b_current_score - b_prev_score, "gain",
-                               "black")
-            b_prev_score = b_current_score
-
-        print("Checkmate: " + str(self.board.is_checkmate()))
-        self.w_engine.engine.quit()
-        self.b_engine.engine.quit()
-
-    def reconfigure_engine_levels(self, b_current_score, w_current_score):
-        if b_current_score is None or w_current_score is None:
-            return
-        if b_current_score - w_current_score > GainThresholds.CP_GAP.value:
-            print("Swapped levels")
-            self.w_engine.reconfigure(self.b_engine_level)
-            self.b_engine.reconfigure(self.w_engine_level)
-
-    def generate_swing(self):
-        w_prev_score = b_prev_score = 0
-
-        while not self.board.is_game_over():
-            # whites move
-            previous_fen = self.board.fen()
-            w_move_result = self.play_move(self.w_engine, chess.WHITE)
-            w_current_score = w_move_result[0]
-            print("WHITE " + str(w_prev_score) + " -> " + str(w_current_score))
-
             if GainThresholds.is_advantage_swing(w_prev_score, w_current_score):
                 self.db.insert(previous_fen, self.board.fen(), w_move_result[1], w_current_score - w_prev_score,
                                "swing", "white")
@@ -95,15 +69,16 @@ class generator:
             previous_fen = self.board.fen()
             b_move_result = self.play_move(self.b_engine, chess.BLACK)
             b_current_score = b_move_result[0]
-            print("BLACK " + str(b_prev_score) + " -> " + str(b_current_score))
-
+            if GainThresholds.is_advantage_gain(b_prev_score, b_current_score):
+                self.db.insert(previous_fen, self.board.fen(), b_move_result[1], b_current_score - b_prev_score, "gain",
+                               "black")
             if GainThresholds.is_advantage_swing(b_prev_score, b_current_score):
                 self.db.insert(previous_fen, self.board.fen(), b_move_result[1], b_current_score - b_prev_score,
                                "swing", "black")
             b_prev_score = b_current_score
 
-            # if gap is too large, swap skill sets to encourage comeback
-            self.reconfigure_engine_levels(b_current_score, w_current_score)
+            if allow_skill_switch:
+                self.reconfigure_engine_levels(b_current_score, w_current_score)
 
         print("Checkmate: " + str(self.board.is_checkmate()))
         self.w_engine.engine.quit()

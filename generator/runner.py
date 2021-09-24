@@ -8,9 +8,9 @@ if __name__ == '__main__':
 
     while True:
         try:
-            generator.generate_gain()
+            generator.play_game(False)
             generator.reset()
-            generator.generate_swing()
+            generator.play_game(True)
             generator.reset()
         except Exception:
             generator.reset()

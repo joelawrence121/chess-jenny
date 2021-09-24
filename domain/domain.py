@@ -2,10 +2,8 @@ from enum import Enum
 
 
 class GainThresholds(Enum):
-    # -1 definite loss
-    # 1 definite win
 
-    ADVANTAGE_GAIN = 0.5
+    ADVANTAGE_GAIN = 0.6
     SWING_MIN = -0.2
     SWING_MAX = 0.1
     CP_GAP = 0.6

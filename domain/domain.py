@@ -1,14 +1,20 @@
-class GAIN_THRESHOLDS:
-    ADVANTAGE_GAIN = 400
-    SWING_MIN = -50
-    SWING_MAX = 100
-    CP_GAP = 600
+from enum import Enum
+
+
+class GainThresholds(Enum):
+    # -1 definite loss
+    # 1 definite win
+
+    ADVANTAGE_GAIN = 0.4
+    SWING_MIN = -0.05
+    SWING_MAX = 0.1
+    CP_GAP = 0.6
 
     @staticmethod
     def is_advantage_gain(prev_score, current_score):
         if prev_score is None or current_score is None:
             return False
-        elif current_score - prev_score > GAIN_THRESHOLDS.ADVANTAGE_GAIN:
+        elif current_score - prev_score > GainThresholds.ADVANTAGE_GAIN.value:
             print("ADVANTAGE GAIN")
             return True
 
@@ -18,27 +24,21 @@ class GAIN_THRESHOLDS:
     def is_advantage_swing(prev_score, current_score):
         if prev_score is None or current_score is None:
             return False
-        elif prev_score < GAIN_THRESHOLDS.SWING_MIN and current_score > GAIN_THRESHOLDS.SWING_MAX:
+        elif prev_score < GainThresholds.SWING_MIN.value and current_score > GainThresholds.SWING_MAX.value:
             print("ADVANTAGE SWING " + str(prev_score) + " " + str(current_score))
             return True
 
         return False
 
 
-class ENGINE_SKILL_LEVEL:
+class EngineSkillLevel(Enum):
     ONE = 1
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-    FIVE = 5
-    SIX = 6
-    SEVEN = 7
-    EIGHT = 8
-    NINE = 9
-    TEN = 10
-
-    @staticmethod
-    def get_value(level):
-        levels = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
-        return levels[level - 1]
-
+    TWO = 3
+    THREE = 5
+    FOUR = 7
+    FIVE = 9
+    SIX = 11
+    SEVEN = 13
+    EIGHT = 15
+    NINE = 17
+    TEN = 19

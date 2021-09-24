@@ -5,8 +5,8 @@ class GainThresholds(Enum):
     # -1 definite loss
     # 1 definite win
 
-    ADVANTAGE_GAIN = 0.4
-    SWING_MIN = -0.05
+    ADVANTAGE_GAIN = 0.5
+    SWING_MIN = -0.2
     SWING_MAX = 0.1
     CP_GAP = 0.6
 

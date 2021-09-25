@@ -13,9 +13,7 @@ class GainThresholds(Enum):
         if prev_score is None or current_score is None:
             return False
         elif current_score - prev_score > GainThresholds.ADVANTAGE_GAIN.value:
-            print("ADVANTAGE GAIN")
             return True
-
         return False
 
     @staticmethod
@@ -23,9 +21,7 @@ class GainThresholds(Enum):
         if prev_score is None or current_score is None:
             return False
         elif prev_score < GainThresholds.SWING_MIN.value and current_score > GainThresholds.SWING_MAX.value:
-            print("ADVANTAGE SWING " + str(prev_score) + " " + str(current_score))
             return True
-
         return False
 
 

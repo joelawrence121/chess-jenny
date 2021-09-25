@@ -1,3 +1,5 @@
+import random
+
 from domain.domain import EngineSkillLevel
 from generator import generator
 
@@ -6,15 +8,14 @@ import logging
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
-    # could randomise the skill levels to add some spice
-    generator = generator(EngineSkillLevel.TWO.value, EngineSkillLevel.TEN.value)
-
     while True:
+        engine_levels = list(EngineSkillLevel)
+        jenny = generator(random.choice(engine_levels).value, random.choice(engine_levels).value)
         try:
-            generator.play_game(False)
-            generator.reset()
-            generator.play_game(True)
-            generator.reset()
-        except Exception:
-            logging.warning("An exception was thrown")
-            generator.reset()
+            jenny.play_game(False)
+            jenny.reset()
+            jenny.play_game(True)
+            jenny.reset()
+        except Exception as e:
+            logging.warning("An exception was thrown: " + str(e))
+            jenny.reset()

@@ -10,7 +10,12 @@ from stockfish.stockfish import Engine
 
 
 class generator:
-    TIME_LIMIT = 0.500
+    TIME_LIMIT = 0.1
+    WHITE = "WHITE"
+    BLACK = "BLACK"
+    GAIN = "GAIN"
+    SWING = "SWING"
+    MATE = "MATE"
 
     def __init__(self, w_level, b_level):
         self.w_engine_level = w_level
@@ -30,9 +35,11 @@ class generator:
         self.board.push(result.move)
 
         info = engine.engine.analyse(self.board, chess.engine.Limit(time=self.TIME_LIMIT))
-        cp = chess.engine.PovScore(info['score'], pov).pov(pov).relative.score()
+        pov_score = chess.engine.PovScore(info['score'], pov).pov(pov)
+        cp = pov_score.relative.score()
+
         raw_score = None
-        if cp is not None:
+        if pov_score.is_mate() is False:
             raw_score = (2 / (1 + math.exp(-0.004 * cp)) - 1) * -1
 
         print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))
@@ -55,10 +62,13 @@ class generator:
             w_current_score = w_move_result[0]
             if GainThresholds.is_advantage_gain(w_prev_score, w_current_score):
                 self.db.insert(previous_fen, self.board.fen(), w_move_result[1],
-                               w_current_score - w_prev_score, "gain", "white")
+                               w_current_score - w_prev_score, self.GAIN, self.WHITE)
             if GainThresholds.is_advantage_swing(w_prev_score, w_current_score):
                 self.db.insert(previous_fen, self.board.fen(), w_move_result[1],
-                               w_current_score - w_prev_score, "swing", "white")
+                               w_current_score - w_prev_score, self.SWING, self.WHITE)
+            if self.board.is_checkmate():
+                self.db.insert(previous_fen, self.board.fen(), w_move_result[1],
+                               None, self.MATE, self.WHITE)
             w_prev_score = w_current_score
 
             # blacks move
@@ -67,10 +77,13 @@ class generator:
             b_current_score = b_move_result[0]
             if GainThresholds.is_advantage_gain(b_prev_score, b_current_score):
                 self.db.insert(previous_fen, self.board.fen(), b_move_result[1],
-                               b_current_score - b_prev_score, "gain", "black")
+                               b_current_score - b_prev_score, self.GAIN, self.BLACK)
             if GainThresholds.is_advantage_swing(b_prev_score, b_current_score):
                 self.db.insert(previous_fen, self.board.fen(), b_move_result[1],
-                               b_current_score - b_prev_score, "swing", "black")
+                               b_current_score - b_prev_score, self.SWING, self.BLACK)
+            if self.board.is_checkmate():
+                self.db.insert(previous_fen, self.board.fen(), b_move_result[1],
+                               None, self.MATE, self.BLACK)
             b_prev_score = b_current_score
 
             if allow_skill_switch:

@@ -3,7 +3,7 @@ import platform
 
 import chess.engine
 
-from domain.domain import EngineSkillLevel
+from domain.Domain import EngineSkillLevel
 
 file_path = os.path.dirname(os.path.abspath(__file__))
 

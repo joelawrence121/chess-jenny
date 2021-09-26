@@ -1,7 +1,7 @@
 import random
 
-from domain.domain import EngineSkillLevel
-from generator import generator
+from domain.Domain import EngineSkillLevel
+from Generator import Generator
 
 import logging
 
@@ -10,13 +10,12 @@ if __name__ == '__main__':
 
     while True:
         engine_levels = list(EngineSkillLevel)
-        # jenny = generator(random.choice(engine_levels).value, random.choice(engine_levels).value)
-        jenny = generator(1, 10)
+        jenny = Generator(random.choice(engine_levels).value, random.choice(engine_levels).value)
         try:
             jenny.play_game(False)
             jenny.reset()
             jenny.play_game(True)
             jenny.reset()
-        except Exception as e:
+        except TypeError as e:
             logging.warning("An exception was thrown: " + str(e))
             jenny.reset()

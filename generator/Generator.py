@@ -5,12 +5,12 @@ import chess
 import chess.engine
 import chess.svg
 
-from domain.domain import GainThresholds
-from domain.persistence import ChessDb
-from stockfish.stockfish import Engine
+from domain.Persistence import ChessDb
+from domain.Domain import GainThresholds
+from stockfish.Stockfish import Engine
 
 
-class generator:
+class Generator(object):
     TIME_LIMIT = 0.1
     MATE_IN_N_LIMIT = 5
     WHITE = "WHITE"
@@ -24,10 +24,6 @@ class generator:
         self.w_engine = Engine(w_level)
         self.b_engine_level = b_level
         self.b_engine = Engine(b_level)
-        self.w_move_stack = []
-        self.b_move_stack = []
-        self.mate_start_fen = ""
-        self.counting_mate = False
         self.board = chess.Board()
         self.db = ChessDb()
 
@@ -46,7 +42,7 @@ class generator:
 
         raw_score = None
         if pov_score.is_mate() is False:
-            raw_score = (2 / (1 + math.exp(-0.004 * cp)) - 1) * -1
+            raw_score = normalise(2 / (1 + math.exp(-0.004 * cp)) - 1)
 
         print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))
         return raw_score, result.move.uci(), pov_score
@@ -60,10 +56,9 @@ class generator:
 
     def play_game(self, allow_skill_switch):
         print(str() + "Game: " + uuid.uuid4().hex)
+        game_id = self.db.insert_game(self)
 
         w_prev_score = b_prev_score = 0
-        prev_moves_to_mate = self.MATE_IN_N_LIMIT + 1
-
         while not self.board.is_game_over():
 
             # whites move
@@ -72,7 +67,6 @@ class generator:
             w_current_score = w_move_result[0]
             move = w_move_result[1]
             pov_score = w_move_result[2]
-            print(pov_score)
             if GainThresholds.is_advantage_gain(w_prev_score, w_current_score):
                 self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, w_current_score - w_prev_score,
                                                   self.GAIN, self.WHITE)
@@ -82,7 +76,13 @@ class generator:
             if self.board.is_checkmate():
                 self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, None, self.MATE, self.WHITE)
 
+            if pov_score.is_mate() and normalise(pov_score.relative.mate()) in range(0, self.MATE_IN_N_LIMIT):
+                mate_in_N = normalise(pov_score.relative.mate())
+                self.db.insert_mate_in_N_puzzle(self.board.fen(), self.BLACK, mate_in_N, game_id)
+
             w_prev_score = w_current_score
+
+            if self.board.is_game_over(): break
 
             # blacks move
             previous_fen = self.board.fen()
@@ -90,7 +90,6 @@ class generator:
             b_current_score = b_move_result[0]
             move = b_move_result[1]
             pov_score = b_move_result[2]
-            print(pov_score)
             if GainThresholds.is_advantage_gain(b_prev_score, b_current_score):
                 self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, b_current_score - b_prev_score,
                                                   self.GAIN, self.BLACK)
@@ -100,38 +99,21 @@ class generator:
             if self.board.is_checkmate():
                 self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, None, self.MATE, self.BLACK)
 
-            if pov_score.is_mate() and (pov_score.relative.mate() * -1) in range(0, self.MATE_IN_N_LIMIT):
-
-                if self.counting_mate is False:
-                    print("Starting fen: " + self.board.fen())
-                    self.mate_start_fen = self.board.fen()
-
-                self.counting_mate = True
-
-                current_moves_to_mate = pov_score.relative.mate() * -1
-                print("Moves to mate: " + str(current_moves_to_mate))
-                if current_moves_to_mate < prev_moves_to_mate:
-                    prev_moves_to_mate = current_moves_to_mate
-                    self.b_move_stack.append(move)
-                    print(self.b_move_stack)
-
-                    if current_moves_to_mate == 0:
-                        self.db.insert_mate_in_N_puzzle(self.mate_start_fen, self.board.fen(), self.b_move_stack,
-                                                        self.WHITE)
-                        self.counting_mate = False
-                        self.b_move_stack = []
-                        prev_moves_to_mate = self.MATE_IN_N_LIMIT + 1
-                        self.mate_start_fen = ""
-                else:
-                    self.counting_mate = False
-                    self.b_move_stack = []
-                    prev_moves_to_mate = self.MATE_IN_N_LIMIT + 1
-                    self.mate_start_fen = ""
+            if pov_score.is_mate() and normalise(pov_score.relative.mate()) in range(0, self.MATE_IN_N_LIMIT):
+                mate_in_N = normalise(pov_score.relative.mate())
+                self.db.insert_mate_in_N_puzzle(self.board.fen(), self.WHITE, mate_in_N, game_id)
 
             b_prev_score = b_current_score
 
             if allow_skill_switch:
                 self.reconfigure_engine_levels(b_current_score, w_current_score)
 
+            if self.board.is_game_over(): break
+
+        self.db.update_game(game_id, self.board.result())
         self.w_engine.engine.quit()
         self.b_engine.engine.quit()
+
+
+def normalise(score):
+    return score * -1

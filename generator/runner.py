@@ -10,7 +10,8 @@ if __name__ == '__main__':
 
     while True:
         engine_levels = list(EngineSkillLevel)
-        jenny = generator(random.choice(engine_levels).value, random.choice(engine_levels).value)
+        # jenny = generator(random.choice(engine_levels).value, random.choice(engine_levels).value)
+        jenny = generator(1, 10)
         try:
             jenny.play_game(False)
             jenny.reset()

@@ -4,4 +4,5 @@ Chess jenny (chess generator) is designed to create and persist Chess puzzles. I
 Currently the types of puzzles it generates are: 
 * Spot the killer move (extend an advantage significantly) 
 * Spot the swing move (turn a disadvantage to an advantage) 
+* Mate in N scenarios   
 

@@ -41,7 +41,7 @@ class Generator(object):
         cp = pov_score.relative.score()
 
         raw_score = None
-        if pov_score.is_mate() is False:
+        if not pov_score.is_mate():
             raw_score = normalise(2 / (1 + math.exp(-0.004 * cp)) - 1)
 
         print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))

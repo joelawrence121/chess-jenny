@@ -1,3 +1,5 @@
+import configparser
+
 import mysql.connector
 
 
@@ -10,8 +12,15 @@ class ChessDb(object):
                              "%s, %s) "
 
     def __init__(self):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        print(config.sections())
+        credentials = config['DB_CREDENTIALS']
         self.db = mysql.connector.connect(
-            host="localhost", user="root", password="", database="chess_db"
+            host=credentials['host'],
+            user=credentials['user'],
+            password=credentials['password'],
+            database=credentials['db']
         )
 
     def insert_single_move_puzzle(self, starting_fen, ending_fen, move, gain, puzzle_type, to_move):

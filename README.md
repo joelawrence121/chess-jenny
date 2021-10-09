@@ -6,3 +6,4 @@ Currently the types of puzzles it generates are:
 * Spot the swing move (turn a disadvantage to an advantage) 
 * Mate in N scenarios   
 
+Work in progress

@@ -15,4 +15,4 @@ host=localhost
 user=root
 password=password
 ```
-3. Run runner.py
+3. Run runner.py for a while to populate the db with puzzles

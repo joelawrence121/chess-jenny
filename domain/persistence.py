@@ -20,7 +20,7 @@ class ChessDb(object):
             host=credentials['host'],
             user=credentials['user'],
             password=credentials['password'],
-            database=credentials['db']
+            database='chess_db'
         )
 
     def insert_single_move_puzzle(self, starting_fen, ending_fen, move, gain, puzzle_type, to_move):

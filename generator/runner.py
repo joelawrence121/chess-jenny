@@ -1,9 +1,8 @@
+import logging
 import random
 
-from domain.Domain import EngineSkillLevel
-from Generator import Generator
-
-import logging
+from domain.domain import EngineSkillLevel
+from generator import Generator
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')

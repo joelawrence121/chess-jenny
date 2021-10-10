@@ -5,9 +5,9 @@ import chess
 import chess.engine
 import chess.svg
 
-from domain.Persistence import ChessDb
-from domain.Domain import GainThresholds
-from stockfish.Stockfish import Engine
+from domain.domain import GainThresholds
+from domain.persistence import ChessDb
+from stockfish.stockfish import Engine
 
 
 class Generator(object):

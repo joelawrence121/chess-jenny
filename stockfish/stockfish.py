@@ -3,8 +3,6 @@ import platform
 
 import chess.engine
 
-from domain.Domain import EngineSkillLevel
-
 file_path = os.path.dirname(os.path.abspath(__file__))
 
 if 'Windows' in platform.system():

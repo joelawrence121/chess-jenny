@@ -1,12 +1,4 @@
-create table Game
-(
-    Id          int auto_increment
-        primary key,
-    white_level int         null,
-    black_level int         null,
-    outcome     varchar(32) null
-);
-
+# pre-generated values
 INSERT INTO chess_db.Game (Id, white_level, black_level, outcome) VALUES (21, 15, 7, '1-0');
 INSERT INTO chess_db.Game (Id, white_level, black_level, outcome) VALUES (22, 15, 7, '1-0');
 INSERT INTO chess_db.Game (Id, white_level, black_level, outcome) VALUES (23, 9, 7, '1-0');

@@ -1,15 +1,4 @@
-create table Single_Move
-(
-    gain         float        null,
-    id           int auto_increment
-        primary key,
-    starting_fen varchar(256) not null,
-    ending_fen   varchar(256) not null,
-    type         varchar(256) null,
-    move         varchar(256) not null,
-    to_move      varchar(16)  null
-);
-
+# pre-generated values
 INSERT INTO chess_db.Single_Move (id, starting_fen, ending_fen, gain, type, move, to_move) VALUES (15, '5rk1/3qbppp/p1r1p1n1/1pPn3N/3PQP2/P6P/BB3P2/R4RK1 w - - 1 25', '5rk1/3qbppp/p1r1p1n1/1pPn1P1N/3PQ3/P6P/BB3P2/R4RK1 b - - 0 25', 0.810703, 'SWING', 'f4f5', 'WHITE');
 INSERT INTO chess_db.Single_Move (id, starting_fen, ending_fen, gain, type, move, to_move) VALUES (16, 'r1bqkb1r/1p2pp2/pnn3pp/3p4/P2P1B2/2NB2N1/1P3PPP/R2Q1RK1 w kq - 0 13', 'r1bqkb1r/1p2pp2/pnn3pp/P2p4/3P1B2/2NB2N1/1P3PPP/R2Q1RK1 b kq - 0 13', 0.650606, 'SWING', 'a4a5', 'WHITE');
 INSERT INTO chess_db.Single_Move (id, starting_fen, ending_fen, gain, type, move, to_move) VALUES (17, 'r1b1kb1r/p1p2ppp/4p3/1p1q2B1/P1pP4/1n3NP1/1P2PPBP/R2QK2R w KQkq - 0 11', 'r1b1kb1r/p1p2ppp/4p3/1p1q2B1/P1pP4/1n3NP1/1P2PPBP/R2Q1RK1 b kq - 1 11', 0.734068, 'SWING', 'e1g1', 'WHITE');

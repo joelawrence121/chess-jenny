@@ -22,6 +22,7 @@ class Generator(object):
     GAIN = "GAIN"
     SWING = "SWING"
     MATE = "MATE"
+    PIN = "PIN"
 
     def __init__(self, w_level, b_level):
         self.w_engine_level = w_level
@@ -54,27 +55,35 @@ class Generator(object):
             raw_score = normalise(2 / (1 + math.exp(-0.004 * cp)) - 1)
 
         print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))
-        return raw_score, result.move.uci(), pov_score
+        return raw_score, result.move, pov_score
 
     def check_and_persist_puzzles(self, game_id, move, pov_score, previous_fen, current_score, prev_score, turn):
         # advantage gain check
         if GainThresholds.is_advantage_gain(prev_score, current_score):
-            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, current_score - prev_score,
-                                              self.GAIN, turn)
+            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), current_score - prev_score,
+                                              self.GAIN, turn, None)
 
         # advantage swing check
         if GainThresholds.is_advantage_swing(prev_score, current_score):
-            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, current_score - prev_score,
-                                              self.SWING, turn)
+            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), current_score - prev_score,
+                                              self.SWING, turn, None)
 
         # mate in 1 check
         if self.board.is_checkmate():
-            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move, None, self.MATE, turn)
+            self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), None, self.MATE, turn, None)
 
         # mate in N check
         if pov_score.is_mate() and normalise(pov_score.relative.mate()) in range(0, self.MATE_IN_N_LIMIT):
             mate_in_N = normalise(pov_score.relative.mate())
             self.db.insert_mate_in_N_puzzle(self.board.fen(), self.other_turn(turn), mate_in_N, game_id)
+
+        # king pin check
+        if self.board.is_pinned(turn == self.WHITE, move.to_square):
+            board_copy = self.board.copy()
+            follow_move = board_copy.pop()
+            pin_move = board_copy.pop()
+            self.db.insert_single_move_puzzle(board_copy.fen(), previous_fen, pin_move.uci(), None, self.PIN,
+                                              self.other_turn(turn), follow_move.uci())
 
     def reconfigure_engine_levels(self, b_current_score, w_current_score):
         if b_current_score is None or w_current_score is None:

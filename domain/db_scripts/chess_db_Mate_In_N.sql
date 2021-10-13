@@ -1,15 +1,4 @@
-create table Mate_In_N
-(
-    id            int auto_increment
-        primary key,
-    starting_fen  varchar(256) null,
-    to_move       varchar(32)  null,
-    moves_to_mate int          null,
-    game_id       int          null,
-    constraint Mate_In_N__Game_fk
-        foreign key (game_id) references Game (Id)
-);
-
+# pre-generated values
 INSERT INTO chess_db.Mate_In_N (id, starting_fen, to_move, moves_to_mate, game_id) VALUES (152, '2k5/2P5/p1K1p3/P4Ppp/7P/6P1/8/8 b - - 0 56', 'BLACK', 4, 21);
 INSERT INTO chess_db.Mate_In_N (id, starting_fen, to_move, moves_to_mate, game_id) VALUES (153, '2k5/2P5/p1K5/P4pPp/8/6P1/8/8 b - - 0 57', 'BLACK', 3, 21);
 INSERT INTO chess_db.Mate_In_N (id, starting_fen, to_move, moves_to_mate, game_id) VALUES (154, '2k5/2P5/p1K3P1/P4p2/7p/6P1/8/8 b - - 0 58', 'BLACK', 2, 21);

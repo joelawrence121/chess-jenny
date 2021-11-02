@@ -26,24 +26,24 @@ class ChessDb(object):
         )
 
     def insert_single_move_puzzle(self, starting_fen, ending_fen, move, gain, puzzle_type, to_move, follow_move):
-        print("Inserting single move puzzle " + str(move))
         values = (starting_fen, ending_fen, move, gain, puzzle_type, to_move, follow_move)
         cursor = self.db.cursor()
         try:
             cursor.execute(self.SINGLE_MOVE_INSERT_QUERY, values)
             self.db.commit()
+            print("Inserted: \t single move puzzle \t " + puzzle_type + " \t id: " + str(cursor.lastrowid))
         except Exception as e:
             logging.warning(self.PERSISTENCE_EXCEPTION_MESSAGE.format(str(e)))
         finally:
             cursor.close()
 
     def insert_mate_in_N_puzzle(self, starting_fen, to_move, moves_to_mate, game_id):
-        print("Inserting mate in N puzzle " + str(moves_to_mate))
         values = (starting_fen, to_move, moves_to_mate, game_id)
         cursor = self.db.cursor()
         try:
             cursor.execute(self.MATE_IN_N_INSERT_QUERY, values)
             self.db.commit()
+            print("Inserted: \t mate in " + str(moves_to_mate) + " \t\t\t id: " + str(cursor.lastrowid))
         except Exception as e:
             logging.warning(self.PERSISTENCE_EXCEPTION_MESSAGE.format(str(e)))
         finally:

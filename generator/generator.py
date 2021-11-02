@@ -54,7 +54,7 @@ class Generator(object):
         if not pov_score.is_mate():
             raw_score = normalise(2 / (1 + math.exp(-0.004 * cp)) - 1)
 
-        print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))
+        # print(("white" if pov else "black") + " played " + result.move.uci() + ": \t" + str(raw_score))
         return raw_score, result.move, pov_score
 
     def check_and_persist_puzzles(self, game_id, move, pov_score, previous_fen, current_score, prev_score, turn):
@@ -93,7 +93,7 @@ class Generator(object):
             self.b_engine.reconfigure(self.w_engine_level)
 
     def play_game(self, allow_skill_switch):
-        print(str() + "Game: " + uuid.uuid4().hex)
+        print(str() + "Starting game: " + uuid.uuid4().hex)
         game_id = self.db.insert_game(self)
 
         w_prev_score = b_prev_score = 0

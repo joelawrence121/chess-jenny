@@ -5,7 +5,7 @@ import chess
 import chess.engine
 import chess.svg
 
-from data.domain import GainThresholds
+from data.domain import GainThresholds, EngineSkillLevel
 from data.persistence import ChessDb
 from stockfish.stockfish import Engine
 
@@ -77,15 +77,16 @@ class Generator(object):
             mate_in_N = normalise(pov_score.relative.mate())
             self.db.insert_mate_in_N_puzzle(self.board.fen(), self.other_turn(turn), mate_in_N, game_id)
 
-        # king pin check
-        if self.board.is_pinned(turn == self.WHITE, move.to_square):
+        # king pin check (only persist when playing optimally)
+        if self.board.is_pinned(turn == self.WHITE, move.to_square) \
+                and self.w_engine_level == EngineSkillLevel.TEN and self.b_engine_level == EngineSkillLevel.TEN:
             board_copy = self.board.copy()
             follow_move = board_copy.pop()
             pin_move = board_copy.pop()
             self.db.insert_single_move_puzzle(board_copy.fen(), previous_fen, pin_move.uci(), None, self.PIN,
                                               self.other_turn(turn), follow_move.uci())
 
-    def reconfigure_engine_levels(self, b_current_score, w_current_score):
+    def switch_engine_levels(self, b_current_score, w_current_score):
         if b_current_score is None or w_current_score is None:
             return
         if b_current_score - w_current_score > GainThresholds.CP_GAP.value:
@@ -123,7 +124,7 @@ class Generator(object):
 
             # switch engine levels if scores are too far apart
             if allow_skill_switch:
-                self.reconfigure_engine_levels(b_current_score, w_current_score)
+                self.switch_engine_levels(b_current_score, w_current_score)
 
         self.db.update_game(game_id, self.board.result())
         self.w_engine.engine.quit()

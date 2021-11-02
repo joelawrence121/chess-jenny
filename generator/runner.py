@@ -14,7 +14,8 @@ def run(t):
         jenny.play_game(False)
         jenny.reset()
         jenny.play_game(True)
-        jenny.reset()
+        jenny = Generator(EngineSkillLevel.TEN.value, EngineSkillLevel.TEN.value)
+        jenny.play_game(False)
     except TypeError as e:
         logging.warning("An exception was thrown: " + str(e))
         jenny.reset()

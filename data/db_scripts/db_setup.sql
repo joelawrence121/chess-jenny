@@ -1,4 +1,4 @@
-create schema chess_db;
+create schema if not exists chess_db;
 use chess_db;
 
 create table chess_db.Game

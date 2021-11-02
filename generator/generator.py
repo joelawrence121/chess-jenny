@@ -5,8 +5,8 @@ import chess
 import chess.engine
 import chess.svg
 
-from domain.domain import GainThresholds
-from domain.persistence import ChessDb
+from data.domain import GainThresholds
+from data.persistence import ChessDb
 from stockfish.stockfish import Engine
 
 

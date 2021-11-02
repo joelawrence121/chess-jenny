@@ -8,11 +8,11 @@ Currently the types of puzzles it generates are:
 
 ## Setup
 1. Ensure a MySQL connection and execute 'db_setup.sql'
-2. Create a new config.ini file with your database credentials 
+2. Create a new config.ini file with your database credentials and place it in the 'generator' directory next to the runner.py file.
 ```
 [DB_CREDENTIALS]
 host=localhost
 user=root
 password=password
 ```
-3. Run runner.py
+3. Run runner.py for a while to populate the db with puzzles

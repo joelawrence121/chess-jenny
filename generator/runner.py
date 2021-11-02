@@ -1,7 +1,7 @@
 import logging
 import random
 
-from domain.domain import EngineSkillLevel
+from data.domain import EngineSkillLevel
 from generator import Generator
 
 if __name__ == '__main__':

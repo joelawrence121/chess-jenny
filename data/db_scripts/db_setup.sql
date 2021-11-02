@@ -1,4 +1,15 @@
 create schema chess_db;
+use chess_db;
+
+create table chess_db.Game
+(
+    Id          int auto_increment,
+    white_level int         null,
+    black_level int         null,
+    outcome     varchar(32) null,
+    constraint Game_pk
+        primary key (Id)
+);
 
 create table chess_db.Single_Move
 (
@@ -25,12 +36,11 @@ create table chess_db.Mate_In_N
         foreign key (game_id) references Game (Id)
 );
 
-create table chess_db.Game
+create table Opening
 (
-    Id          int auto_increment,
-    white_level int         null,
-    black_level int         null,
-    outcome     varchar(32) null,
-    constraint Game_pk
-        primary key (Id)
+    id int auto_increment primary key,
+	eco_classification varchar(5) not null,
+	name varchar(1024) not null,
+	move_stack varchar(1024) not null,
+	epd varchar(1024) not null
 );

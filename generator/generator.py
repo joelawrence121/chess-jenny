@@ -79,7 +79,8 @@ class Generator(object):
 
         # king pin check (only persist when playing optimally)
         if self.board.is_pinned(turn == self.WHITE, move.to_square) \
-                and self.w_engine_level == EngineSkillLevel.TEN and self.b_engine_level == EngineSkillLevel.TEN:
+                and self.w_engine_level == EngineSkillLevel.TEN.value \
+                and self.b_engine_level == EngineSkillLevel.TEN.value:
             board_copy = self.board.copy()
             follow_move = board_copy.pop()
             pin_move = board_copy.pop()

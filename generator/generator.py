@@ -84,7 +84,7 @@ class Generator(object):
             board_copy = self.board.copy()
             follow_move = board_copy.pop()
             pin_move = board_copy.pop()
-            self.db.insert_single_move_puzzle(board_copy.fen(), previous_fen, pin_move.uci(), None, self.PIN,
+            self.db.insert_single_move_puzzle(board_copy.fen(), self.board.fen(), pin_move.uci(), None, self.PIN,
                                               self.other_turn(turn), follow_move.uci())
 
     def switch_engine_levels(self, b_current_score, w_current_score):

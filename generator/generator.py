@@ -16,7 +16,7 @@ def normalise(score):
 
 class Generator(object):
     TIME_LIMIT = 0.1
-    MATE_IN_N_LIMIT = 5
+    MATE_IN_N_LIMIT = 6
     WHITE = "WHITE"
     BLACK = "BLACK"
     GAIN = "GAIN"
@@ -73,8 +73,8 @@ class Generator(object):
             self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), None, self.MATE, turn, None)
 
         # mate in N check
-        if pov_score.is_mate() and normalise(pov_score.relative.mate()) in range(0, self.MATE_IN_N_LIMIT):
-            mate_in_N = normalise(pov_score.relative.mate())
+        if pov_score.is_mate() and pov_score.relative.mate() in range(2, self.MATE_IN_N_LIMIT):
+            mate_in_N = pov_score.relative.mate()
             self.db.insert_mate_in_N_puzzle(self.board.fen(), self.other_turn(turn), mate_in_N, game_id)
 
         # king pin check (only persist when playing optimally)

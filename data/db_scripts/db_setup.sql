@@ -38,9 +38,13 @@ create table chess_db.Mate_In_N
 
 create table Opening
 (
-    id int auto_increment primary key,
-	eco_classification varchar(5) not null,
-	name varchar(1024) not null,
-	move_stack varchar(1024) not null,
-	epd varchar(1024) not null
+    id                 int auto_increment
+        primary key,
+    name               varchar(1024) not null,
+    move_stack         varchar(1024) not null,
+    wiki_link          varchar(1024) null,
+    explorer_link      varchar(1024) null,
+    epd                varchar(1024) not null,
+    eco_classification varchar(5)    not null
 );
+

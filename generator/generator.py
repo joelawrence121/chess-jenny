@@ -43,6 +43,14 @@ class Generator(object):
         return self.WHITE
 
     def play_move(self, engine, pov):
+        '''
+        :param engine:
+        :param pov:
+        :return: [raw_score, move, pov_score]
+        Uses the given Stockfish engine to play its best move. Calculates the normalised centi-pawn score and returns
+        it along with the move made and the PovScore.
+        '''
+
         result = engine.play(self.board)
         self.board.push(result.move)
 
@@ -57,6 +65,21 @@ class Generator(object):
         return raw_score, result.move, pov_score
 
     def check_and_persist_puzzles(self, game_id, move, pov_score, previous_fen, current_score, prev_score, turn):
+        '''
+
+        :param game_id:
+        :param move:
+        :param pov_score:
+        :param previous_fen:
+        :param current_score:
+        :param prev_score:
+        :param turn:
+        :return: None
+        Given properties about the game being played and previous states of the board, checks for puzzle conditions
+        and calls the repository to insert them if they match.
+        Current supported puzzles: GAIN, SWING, PIN, MATE IN 1, MATE IN N
+        '''
+
         # advantage gain check
         if GainThresholds.is_advantage_gain(prev_score, current_score):
             self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), current_score - prev_score,
@@ -71,11 +94,6 @@ class Generator(object):
         if self.board.is_checkmate():
             self.db.insert_single_move_puzzle(previous_fen, self.board.fen(), move.uci(), None, self.MATE, turn, None)
 
-        # mate in N check
-        if pov_score.is_mate() and pov_score.relative.mate() in range(2, self.MATE_IN_N_LIMIT):
-            mate_in_N = pov_score.relative.mate()
-            self.db.insert_mate_in_N_puzzle(self.board.fen(), self.other_turn(turn), mate_in_N, game_id)
-
         # king pin check (only persist when playing optimally)
         if self.board.is_pinned(turn == self.WHITE, move.to_square) \
                 and self.w_engine_level == EngineSkillLevel.TEN.value \
@@ -86,6 +104,11 @@ class Generator(object):
             self.db.insert_single_move_puzzle(board_copy.fen(), self.board.fen(), pin_move.uci(), None, self.PIN,
                                               self.other_turn(turn), follow_move.uci())
 
+        # mate in N check
+        if pov_score.is_mate() and pov_score.relative.mate() in range(2, self.MATE_IN_N_LIMIT):
+            mate_in_N = pov_score.relative.mate()
+            self.db.insert_mate_in_N_puzzle(self.board.fen(), self.other_turn(turn), mate_in_N, game_id)
+
     def switch_engine_levels(self, b_current_score, w_current_score):
         if b_current_score is None or w_current_score is None:
             return
@@ -94,6 +117,13 @@ class Generator(object):
             self.b_engine.reconfigure(self.w_engine_level)
 
     def play_game(self, allow_skill_switch):
+        '''
+        :param allow_skill_switch:
+        :return: None
+        Keeps playing the two engines in the Generator instance against themselves until an end is reached.
+        Allow skill switch determines whether the skill levels are switched if one engine is at a disadvantage (for swing puzzles)
+        '''
+
         print(str() + "Starting game: " + uuid.uuid4().hex)
         game_id = self.db.insert_game(self)
 

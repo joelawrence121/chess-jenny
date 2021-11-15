@@ -43,13 +43,13 @@ class Generator(object):
         return self.WHITE
 
     def play_move(self, engine, pov):
-        '''
+        """
         :param engine:
         :param pov:
         :return: [raw_score, move, pov_score]
         Uses the given Stockfish engine to play its best move. Calculates the normalised centi-pawn score and returns
         it along with the move made and the PovScore.
-        '''
+        """
 
         result = engine.play(self.board)
         self.board.push(result.move)
@@ -65,20 +65,11 @@ class Generator(object):
         return raw_score, result.move, pov_score
 
     def check_and_persist_puzzles(self, game_id, move, pov_score, previous_fen, current_score, prev_score, turn):
-        '''
-
-        :param game_id:
-        :param move:
-        :param pov_score:
-        :param previous_fen:
-        :param current_score:
-        :param prev_score:
-        :param turn:
-        :return: None
+        """
         Given properties about the game being played and previous states of the board, checks for puzzle conditions
         and calls the repository to insert them if they match.
         Current supported puzzles: GAIN, SWING, PIN, MATE IN 1, MATE IN N
-        '''
+        """
 
         # advantage gain check
         if GainThresholds.is_advantage_gain(prev_score, current_score):
@@ -117,12 +108,12 @@ class Generator(object):
             self.b_engine.reconfigure(self.w_engine_level)
 
     def play_game(self, allow_skill_switch):
-        '''
+        """
         :param allow_skill_switch:
         :return: None
         Keeps playing the two engines in the Generator instance against themselves until an end is reached.
         Allow skill switch determines whether the skill levels are switched if one engine is at a disadvantage (for swing puzzles)
-        '''
+        """
 
         print(str() + "Starting game: " + uuid.uuid4().hex)
         game_id = self.db.insert_game(self)

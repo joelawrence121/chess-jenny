@@ -42,8 +42,8 @@ create table Opening
         primary key,
     name               varchar(1024) not null,
     move_stack         varchar(1024) not null,
+    pgn                varchar(1024) not null,
     wiki_link          varchar(1024) null,
-    explorer_link      varchar(1024) null,
     epd                varchar(1024) not null,
     eco_classification varchar(5)    not null
 );
